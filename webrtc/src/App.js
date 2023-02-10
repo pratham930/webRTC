@@ -31,8 +31,10 @@ function App() {
     const _pc = new RTCPeerConnection(null);
 
     _pc.onicecandidate = (e) => {
-      console.log(JSON.stringify(e.candidate),"121")
-      if (e.candiadate) console.log(JSON.stringify(e.candidate));
+      // console.log(JSON.stringify(e.candidate),"121")
+      if (e && e.candidate){ 
+        console.log(JSON.stringify(e.candidate))
+      };
     };
     _pc.oniceconnectionstatechange = (e) => {
       console.log(e);
