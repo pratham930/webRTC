@@ -35,11 +35,30 @@ const server = httpServer.listen(port, () => {
 io.listen(server)
 
 
+
+
 // console.log(io, "io")
 io.on("connection", (socket) => {
-
   // console.log("Connected to socket.io with id --> ", socket.id);
   socket.emit("connected");
+
+  socket.on("sdp", (data) => {
+    // socket.join(userId);
+    // socket.join(room);
+    console.log("User offered sdp: " + JSON.stringify(data.sdp));
+    socket.broadcast.emit("serverOffer", data)
+  });
+
+  
+  socket.on("candidate", (data) => {
+    // socket.join(userId);
+    // socket.join(room);
+    console.log("User cadidate : " + JSON.stringify(data));
+    socket.broadcast.emit("serverCandidate", data)
+  });
+  
+
+
 
   socket.on("join chat", (room) => {
     // socket.join(userId);
@@ -49,10 +68,12 @@ io.on("connection", (socket) => {
 
   
   socket.on("disconnect", (socket) => {
-    console.log("offline disconnected");
+    console.log(socket.id,"offline disconnected" );
   })
 
-})
+}
+
+)
 
 
 

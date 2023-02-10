@@ -1,13 +1,28 @@
 import "./App.css";
 import { Button, Box } from "@mui/material";
 import React, { useRef, useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
 function App() {
+
+
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
   // const localAudioRef = useRef()
   const pc = useRef(new RTCPeerConnection(null));
   const textRef = useRef();
+  const candidates = useRef([]);
+
+/////// ***** SOCKET *****?/////
+
+  const [socket, setsocket] = useState(null)
+
+    useEffect(() => {
+      setsocket(io("http://localhost:8001"))
+    }, []);
+
+  
+   
 
   useEffect(() => {
     const constrains = {
@@ -18,6 +33,7 @@ function App() {
       .getUserMedia(constrains)
       .then((stream) => {
         localVideoRef.current.srcObject = stream;
+
         stream.getTracks().forEach((track) => {
           _pc.addTrack(track, stream);
         });
@@ -30,17 +46,21 @@ function App() {
 
     const _pc = new RTCPeerConnection(null);
 
-    _pc.onicecandidate = (e) => {
-      // console.log(JSON.stringify(e.candidate),"121")
-      if (e && e.candidate){ 
-        console.log(JSON.stringify(e.candidate))
-      };
+    _pc.onicecandidate = async(e) => {
+      console.log(JSON.stringify(e.candidate),"121")
+      
+      await  socket.emit('candidate',e.candidate)
+         console.log(JSON.stringify(e.candidate))
+       
     };
+
     _pc.oniceconnectionstatechange = (e) => {
-      console.log(e);
+       console.log(e,"oniceconnection");
     };
+
     _pc.ontrack = (e) => {
-      remoteVideoRef.current.srcObject = e.streams[0];
+      console.log(e,"e")
+        remoteVideoRef.current.srcObject = e.streams[0];
       /// we got remote stream
     };
     pc.current = _pc;
@@ -57,6 +77,8 @@ function App() {
       .then((sdp) => {
         console.log(JSON.stringify(sdp));
         pc.current.setLocalDescription(sdp);
+
+        socket.emit('sdp',{sdp})
       })
       .catch((e) => console.log(e));
   };
@@ -70,6 +92,7 @@ function App() {
       .then((sdp) => {
         console.log(JSON.stringify(sdp));
         pc.current.setLocalDescription(sdp);
+        socket.emit('sdp',{sdp})
       })
       .catch((e) => console.log(e));
   };
@@ -79,11 +102,19 @@ function App() {
     console.log(sdp);
     pc.current.setRemoteDescription(new RTCSessionDescription(sdp));
   };
-  const addCandidate = () => {
-    const candidate = JSON.parse(textRef.current.value);
-    console.log("Adding candidate", candidate);
 
-    pc.current.addIceCandidate(new RTCSessionDescription(candidate));
+
+
+  const addCandidate = () => {
+    // const candidate = JSON.parse(textRef.current.value);
+    candidates.current?.forEach(candidate=>{
+      console.log("Adding candidate", candidate);
+
+      pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+
+    })
+ 
+
   };
 
   // const getUserMedia = ()=>{
@@ -124,6 +155,48 @@ function App() {
 
   // }
 
+  useEffect(() => {
+  
+    if (socket) {
+      socket.on("connect", () => {
+        console.log(socket.id, 'id'); // x8WIv7-mJelg7on_ALbx
+      });
+    }
+
+  }, [socket])
+
+  useEffect(() => {
+
+    if (socket) {
+      socket.on("serverOffer", (offer) => {
+        console.log(JSON.stringify(offer.sdp), 'offer'); // x8WIv7-mJelg7on_ALbx
+textRef.current.value =JSON.stringify(offer.sdp)
+      });
+    }
+
+  }, [socket])
+
+
+  useEffect(() => {
+
+  if (socket) {
+
+    socket.on("serverCandidate", (cadidate) => {
+      console.log(cadidate, 'cadidate'); // x8WIv7-mJelg7on_ALbx
+      candidates.current = [...candidates.current, cadidate] 
+
+    })
+    
+  }
+
+}, [socket])
+
+
+
+/////// ***** SOCKET *****?/////
+
+
+
   return (
     <div className="App">
       {/* ///***TO START VIDEO MAUAL */}
@@ -139,7 +212,7 @@ click
           ref={localVideoRef}
           autoPlay
         >
-          {" "}
+         
         </video>
         <br />
         <video
@@ -147,7 +220,7 @@ click
           ref={remoteVideoRef}
           autoPlay
         >
-          {" "}
+        
         </video>
         {/* <audio ref={localAudioRef} autoPlay > </audio> */}
       </Box>
