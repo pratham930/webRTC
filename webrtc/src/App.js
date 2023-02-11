@@ -97,21 +97,11 @@ textRef.current.value =JSON.stringify(offer.sdp)
 // console.log(_pc.onicecandidate(e))
     _pc.onicecandidate =  (e) => {
 
-
-
-if (e && e.candidate) {
   console.log(JSON.stringify(e.candidate),"121")
-  socket.emit('candidate',e.candidate)
-  console.log(JSON.stringify(e.candidate),"121")
+  // socket.emit('candidate',e.candidate)
 
-}
-    
-      // console.log(JSON.stringify(e.candidate),"121")
-      
-        
-      
-        //  console.log(JSON.stringify(e.candidate))
-       
+
+     
     };
 
     _pc.oniceconnectionstatechange = (e) => {
