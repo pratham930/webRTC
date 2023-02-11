@@ -13,13 +13,62 @@ function App() {
   const textRef = useRef();
   const candidates = useRef([]);
 
-/////// ***** SOCKET *****?/////
 
+
+
+  
   const [socket, setsocket] = useState(null)
 
     useEffect(() => {
       setsocket(io("http://localhost:8001"))
     }, []);
+
+
+  ///******pROMIES8888*****/
+
+  // }
+
+  useEffect(() => {
+  
+    if (socket) {
+      socket.on("connect", () => {
+        console.log(socket.id, 'id'); // x8WIv7-mJelg7on_ALbx
+      });
+    }
+
+  }, [socket])
+
+  useEffect(() => {
+
+    if (socket) {
+      socket.on("serverOffer", (offer) => {
+        console.log(JSON.stringify(offer.sdp), 'offer'); // x8WIv7-mJelg7on_ALbx
+textRef.current.value =JSON.stringify(offer.sdp)
+      });
+    }
+
+  }, [socket])
+
+
+  useEffect(() => {
+
+  if (socket) {
+
+    socket.on("serverCandidate", (cadidate) => {
+      console.log(cadidate, 'cadidate'); // x8WIv7-mJelg7on_ALbx
+      candidates.current = [...candidates.current, cadidate] 
+    }) 
+  }
+
+}, [socket])
+
+/////// ***** SOCKET *****?/////
+
+
+
+
+
+
 
   
    
@@ -117,13 +166,16 @@ if (e && e.candidate) {
 
 
   const addCandidate = () => {
-    // const candidate = JSON.parse(textRef.current.value);
-    candidates.current?.forEach(candidate=>{
-      console.log("Adding candidate", candidate);
 
-      pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+    const candidate = JSON.parse(textRef.current.value);
+    pc.current.addIceCandidate(new RTCIceCandidate(candidate));
 
-    })
+    // candidates.current?.forEach(candidate=>{
+    //   console.log("Adding candidate", candidate);
+
+    //   pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+
+    // })
  
 
   };
@@ -162,49 +214,7 @@ if (e && e.candidate) {
   //   // localAudioRef.current.srcObject = stream
   // }).catch(e=>{ console.log("first",e)})
 
-  ///******pROMIES8888*****/
 
-  // }
-
-  useEffect(() => {
-  
-    if (socket) {
-      socket.on("connect", () => {
-        console.log(socket.id, 'id'); // x8WIv7-mJelg7on_ALbx
-      });
-    }
-
-  }, [socket])
-
-  useEffect(() => {
-
-    if (socket) {
-      socket.on("serverOffer", (offer) => {
-        console.log(JSON.stringify(offer.sdp), 'offer'); // x8WIv7-mJelg7on_ALbx
-textRef.current.value =JSON.stringify(offer.sdp)
-      });
-    }
-
-  }, [socket])
-
-
-  useEffect(() => {
-
-  if (socket) {
-
-    socket.on("serverCandidate", (cadidate) => {
-      console.log(cadidate, 'cadidate'); // x8WIv7-mJelg7on_ALbx
-      candidates.current = [...candidates.current, cadidate] 
-
-    })
-    
-  }
-
-}, [socket])
-
-
-
-/////// ***** SOCKET *****?/////
 
 
 
