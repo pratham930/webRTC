@@ -24,7 +24,6 @@ const VideoCall = () => {
             // localAudioRef.current.srcObject = stream
           }).catch(e=>{ console.log("first",e)})
 
-
     }, [])
 
 
