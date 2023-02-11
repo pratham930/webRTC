@@ -1,18 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
-// import Socket from './Socket';
-import VideoCall from './VideoCall';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AllRoutes from './AllRoutes';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  <BrowserRouter>
     {/* <Socket/> */}
-<VideoCall/>
+ <AllRoutes/>
+
     {/* <App /> */}
-  </React.StrictMode>
+  </BrowserRouter>
 );
 
 reportWebVitals();

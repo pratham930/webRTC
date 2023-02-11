@@ -13,10 +13,6 @@ function App() {
   const textRef = useRef();
   const candidates = useRef([]);
 
-
-
-
-  
   const [socket, setsocket] = useState(null)
 
     useEffect(() => {
@@ -35,20 +31,18 @@ function App() {
         console.log(socket.id, 'id'); // x8WIv7-mJelg7on_ALbx
       });
     }
-
   }, [socket])
 
   useEffect(() => {
 
     if (socket) {
       socket.on("serverOffer", (offer) => {
-        console.log(JSON.stringify(offer.sdp), 'offer'); // x8WIv7-mJelg7on_ALbx
+        console.log(JSON.stringify(offer.sdp), 'offer server'); // x8WIv7-mJelg7on_ALbx
 textRef.current.value =JSON.stringify(offer.sdp)
       });
     }
 
   }, [socket])
-
 
   useEffect(() => {
 
@@ -62,17 +56,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
 
 }, [socket])
 
-/////// ***** SOCKET *****?/////
-
-
-
-
-
-
-
-  
-   
-
+/////// ***** SOCKET End *****?/////
   useEffect(() => {
     const constrains = {
       audio: true,
@@ -92,16 +76,18 @@ textRef.current.value =JSON.stringify(offer.sdp)
       .catch((e) => {
         console.log("first", e);
       });
+  
+  }, []);
 
-    const _pc = new RTCPeerConnection(null);
-// console.log(_pc.onicecandidate(e))
+  const _pc = new RTCPeerConnection(null);
     _pc.onicecandidate =  (e) => {
 
-  console.log(JSON.stringify(e.candidate),"121")
-  // socket.emit('candidate',e.candidate)
+  if(e.candidate){
+    socket.emit('candidate',e.candidate)
+  // console.log(JSON.stringify(e.candidate),"121")
 
 
-     
+  }
     };
 
     _pc.oniceconnectionstatechange = (e) => {
@@ -114,7 +100,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
       /// we got remote stream
     };
     pc.current = _pc;
-  }, []);
+
 
   const createOffer = () => {
     console.log(pc.current)
@@ -125,7 +111,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
         offerToReceiveAudio: 1,
       })
       .then((sdp) => {
-        console.log(JSON.stringify(sdp));
+        // console.log(JSON.stringify(sdp),'client');
         pc.current.setLocalDescription(sdp);
 
         socket.emit('sdp',{sdp})
@@ -157,17 +143,16 @@ textRef.current.value =JSON.stringify(offer.sdp)
 
   const addCandidate = () => {
 
-    const candidate = JSON.parse(textRef.current.value);
-    pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+    // const candidate = JSON.parse(textRef.current.value);
+    // pc.current.addIceCandidate(new RTCIceCandidate(candidate));
 
-    // candidates.current?.forEach(candidate=>{
-    //   console.log("Adding candidate", candidate);
+    candidates.current?.forEach(candidate=>{
+      console.log("Adding candidate", candidate);
 
-    //   pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+      pc.current.addIceCandidate(new RTCIceCandidate(candidate));
 
-    // })
+    })
  
-
   };
 
   // const getUserMedia = ()=>{

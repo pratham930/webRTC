@@ -46,6 +46,7 @@ io.on("connection", (socket) => {
     // socket.join(userId);
     // socket.join(room);
     console.log("User offered sdp: " + JSON.stringify(data.sdp));
+    // console.log("User offered sdp: " + data.sdp);
     socket.broadcast.emit("serverOffer", data)
   });
 
@@ -53,7 +54,7 @@ io.on("connection", (socket) => {
   socket.on("candidate", (data) => {
     // socket.join(userId);
     // socket.join(room);
-    console.log("User cadidate : " + JSON.stringify(data));
+    // console.log("User cadidate : " + JSON.stringify(data));
     socket.broadcast.emit("serverCandidate", data)
   });
   
