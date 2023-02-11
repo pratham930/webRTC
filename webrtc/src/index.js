@@ -3,13 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Socket from './Socket';
+// import Socket from './Socket';
+import VideoCall from './VideoCall';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     {/* <Socket/> */}
-    <App />
+<VideoCall/>
+    {/* <App /> */}
   </React.StrictMode>
 );
 
