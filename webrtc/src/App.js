@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 
 function App() {
 
-
+ const [done ,setDon] = useState(true)
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
   // const localAudioRef = useRef()
@@ -47,7 +47,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
 
   if (socket) {
 
-    socket.on("serverCandidate", (cadidate) => {
+    socket.on("serverCandidate", cadidate => {
       console.log(cadidate, 'cadidate'); // x8WIv7-mJelg7on_ALbx
       candidates.current = [...candidates.current, cadidate] 
     }) 
@@ -84,10 +84,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
   if(e.candidate){
     socket.emit('candidate',e.candidate)
   // console.log(JSON.stringify(e.candidate),"121")
-
-
-  }
-    };
+  }};
 
     _pc.oniceconnectionstatechange = (e) => {
        console.log(e,"oniceconnection");
@@ -136,7 +133,10 @@ textRef.current.value =JSON.stringify(offer.sdp)
     const sdp = JSON.parse(textRef.current.value);
     console.log(sdp);
     pc.current.setRemoteDescription(new RTCSessionDescription(sdp));
-  };
+    if (done) {
+      createAnswer()
+      setDon(false)}  
+};
 
 
 
@@ -145,7 +145,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
     // const candidate = JSON.parse(textRef.current.value);
     // pc.current.addIceCandidate(new RTCIceCandidate(candidate));
 
-    candidates.current?.forEach(candidate=>{
+    candidates.current.forEach(candidate=>{
       console.log("Adding candidate", candidate);
 
       pc.current.addIceCandidate(new RTCIceCandidate(candidate));

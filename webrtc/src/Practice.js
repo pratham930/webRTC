@@ -2,14 +2,13 @@ import React, { useRef,useEffect,useState} from 'react'
 import { Button, Box } from "@mui/material";
 import { styled } from '@mui/material/styles';
 
-
 const Practice = () => {
 
     const posts = useRef([]);
     const count = useRef(0);
     const [numb, setnumb] = useState(0)
-    const [attachment, setaddAttachment] = useState()
-    const [Nesattachment, setNewaddAttachment] = useState()
+    // const [attachment, setaddAttachment] = useState()
+    // const [Nesattachment, setNewaddAttachment] = useState()
 
 
 //     const array = []
@@ -24,10 +23,7 @@ const Practice = () => {
 //   array.push(data.get("addAttachment"))
 // }
 //   console.log(data.get("addAttachment"),"addAttachment")
-  
 // }
-   
-
 // console.log(array)
 
     const ram = [
@@ -53,9 +49,6 @@ useEffect(() => {
   console.log(numb,"numb")
 
 }, [numb])
-
-
-
 
   return (
     <div>
