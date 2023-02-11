@@ -45,12 +45,23 @@ function App() {
       });
 
     const _pc = new RTCPeerConnection(null);
+// console.log(_pc.onicecandidate(e))
+    _pc.onicecandidate =  (e) => {
 
-    _pc.onicecandidate = async(e) => {
-      console.log(JSON.stringify(e.candidate),"121")
+
+
+if (e && e.candidate) {
+  console.log(JSON.stringify(e.candidate),"121")
+  socket.emit('candidate',e.candidate)
+  console.log(JSON.stringify(e.candidate),"121")
+
+}
+    
+      // console.log(JSON.stringify(e.candidate),"121")
       
-      await  socket.emit('candidate',e.candidate)
-         console.log(JSON.stringify(e.candidate))
+        
+      
+        //  console.log(JSON.stringify(e.candidate))
        
     };
 
