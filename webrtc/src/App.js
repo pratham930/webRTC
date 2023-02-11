@@ -41,7 +41,6 @@ function App() {
 textRef.current.value =JSON.stringify(offer.sdp)
       });
     }
-
   }, [socket])
 
   useEffect(() => {
