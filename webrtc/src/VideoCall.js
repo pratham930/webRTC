@@ -8,8 +8,6 @@ const VideoCall = () => {
     const textRef = useRef(); 
     const pc = useRef(new RTCPeerConnection(null));
 
-
-
     useEffect(() => {
         const constrains ={
             audio:true,
@@ -27,35 +25,29 @@ const VideoCall = () => {
           }).catch(e=>{ console.log("first",e)})
 
 
-
-          const _pc = new RTCPeerConnection(null);
-          
-              _pc.onicecandidate =  (e) => {
-          if(e.candidate)
-            console.log(JSON.stringify(e.candidate),"121")   
-              };
-          
-              _pc.oniceconnectionstatechange = (e) => {
-                 console.log(e,"oniceconnection");
-              };
-          
-              _pc.ontrack = (e) => {
-                console.log(e,"e")
-
-remoteVideoRef.current.srcObject = e.streams[0]
-
-
-                //   remoteVideoRef.current.srcObject = e.streams[0];
-                /// we got remote stream
-              };
-
-              pc.current = _pc;
-
     }, [])
 
 
-    const createOffer =()=>{
+    const _pc = new RTCPeerConnection(null);
+    
+    _pc.onicecandidate =  (e) => {
+if(e.candidate)
+  console.log(JSON.stringify(e.candidate),"121")   
+    };
+    _pc.oniceconnectionstatechange = (e) => {
+       console.log(e,"oniceconnection");
+    };
+    _pc.ontrack = (e) => {
+      console.log(e,"e")
 
+remoteVideoRef.current.srcObject = e.streams[0]
+
+    };
+    pc.current = _pc;
+
+
+
+    const createOffer =()=>{
         pc.current
         .createOffer({
           offerToReceiveAudio: 1,
@@ -65,11 +57,8 @@ remoteVideoRef.current.srcObject = e.streams[0]
           console.log(JSON.stringify(sdp));
           pc.current.setLocalDescription(sdp);
   
-         
         })
         .catch((e) => console.log(e));
-
-
 
     }
      const createAnswer =()=>{
@@ -97,16 +86,9 @@ remoteVideoRef.current.srcObject = e.streams[0]
     }
 
 
-
-
   return (
     <div>
-{/* ///***TO START VIDEO Manually */}
-      {/* <Button onClick={()=>getUserMedia()} variant="contained" >
-click
-    </Button> */}
 
-      {/* ////8888***?? */}
 <Box sx={{display:"flex" ,m:'10px'}}>
 <video
           style={{ width: 200, height: 240, backgroundColor: "black" }}
