@@ -4,8 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
 function App() {
-
- const [done ,setDon] = useState(true)
+  const [done, setDon] = useState(true);
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
   // const localAudioRef = useRef()
@@ -13,49 +12,61 @@ function App() {
   const textRef = useRef();
   const candidates = useRef([]);
 
-  const [socket, setsocket] = useState(null)
+  // const [socket, setsocket] = useState(null)
 
-    useEffect(() => {
-      setsocket(io("http://localhost:8001"))
-    }, []);
+  //   useEffect(() => {
+  //     setsocket(io("http://localhost:8001"))
+  //   }, []);
 
-
-  ///******pROMIES8888*****/
-
-  // }
+  const socket = io("http://192.168.29.12:8001/");
 
   useEffect(() => {
-  
     if (socket) {
       socket.on("connect", () => {
-        console.log(socket.id, 'id'); // x8WIv7-mJelg7on_ALbx
+        console.log(socket.id, "id"); // x8WIv7-mJelg7on_ALbx
       });
     }
-  }, [socket])
+  }, [socket]);
 
   useEffect(() => {
-
     if (socket) {
       socket.on("serverOffer", (offer) => {
-        console.log(JSON.stringify(offer.sdp), 'offer server'); // x8WIv7-mJelg7on_ALbx
-textRef.current.value =JSON.stringify(offer.sdp)
+        console.log(JSON.stringify(offer.sdp), "offer server"); // x8WIv7-mJelg7on_ALbx
+        textRef.current.value = JSON.stringify(offer.sdp);
+
+        if (offer.sdp.type === "answer") {
+          setRemoteArea();
+          socket.emit("callAccepted", "accepted");
+          // addCandidate();
+          // setDon(false);
+        }
       });
     }
-  }, [socket])
+  }, [socket]);
+
+  ///new wxperiment///////
 
   useEffect(() => {
+    if (socket) {
+      socket.on("servercallAccepted", (cadidate) => {
+        if (cadidate) {
+          addCandidate();
+        }
+      });
+    }
+  }, [socket]);
+  ///new wxperiment///////
 
-  if (socket) {
+  useEffect(() => {
+    if (socket) {
+      socket.on("serverCandidate", (cadidate) => {
+        console.log(cadidate, "cadidate"); // x8WIv7-mJelg7on_ALbx
+        candidates.current = [...candidates.current, cadidate];
+      });
+    }
+  }, [socket]);
 
-    socket.on("serverCandidate", cadidate => {
-      console.log(cadidate, 'cadidate'); // x8WIv7-mJelg7on_ALbx
-      candidates.current = [...candidates.current, cadidate] 
-    }) 
-  }
-
-}, [socket])
-
-/////// ***** SOCKET End *****?/////
+  /////// ***** SOCKET End *****?/////
   useEffect(() => {
     const constrains = {
       audio: true,
@@ -75,32 +86,30 @@ textRef.current.value =JSON.stringify(offer.sdp)
       .catch((e) => {
         console.log("first", e);
       });
-  
   }, []);
 
   const _pc = new RTCPeerConnection(null);
-    _pc.onicecandidate =  (e) => {
+  _pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      socket.emit("candidate", e.candidate);
+      // console.log(JSON.stringify(e.candidate),"121")
+    }
+  };
 
-  if(e.candidate){
-    socket.emit('candidate',e.candidate)
-  // console.log(JSON.stringify(e.candidate),"121")
-  }};
+  _pc.oniceconnectionstatechange = (e) => {
+    console.log(e, "oniceconnection");
+  };
 
-    _pc.oniceconnectionstatechange = (e) => {
-       console.log(e,"oniceconnection");
-    };
-
-    _pc.ontrack = (e) => {
-      console.log(e,"e")
-        remoteVideoRef.current.srcObject = e.streams[0];
-      /// we got remote stream
-    };
-    pc.current = _pc;
-
+  _pc.ontrack = (e) => {
+    console.log(e, "e");
+    remoteVideoRef.current.srcObject = e.streams[0];
+    /// we got remote stream
+  };
+  pc.current = _pc;
 
   const createOffer = () => {
-    console.log(pc.current)
-    
+    console.log(pc.current);
+
     pc.current
       .createOffer({
         offerToReceiveAudio: 1,
@@ -110,7 +119,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
         // console.log(JSON.stringify(sdp),'client');
         pc.current.setLocalDescription(sdp);
 
-        socket.emit('sdp',{sdp})
+        socket.emit("sdp", { sdp });
       })
       .catch((e) => console.log(e));
   };
@@ -124,7 +133,7 @@ textRef.current.value =JSON.stringify(offer.sdp)
       .then((sdp) => {
         console.log(JSON.stringify(sdp));
         pc.current.setLocalDescription(sdp);
-        socket.emit('sdp',{sdp})
+        socket.emit("sdp", { sdp });
       })
       .catch((e) => console.log(e));
   };
@@ -133,25 +142,22 @@ textRef.current.value =JSON.stringify(offer.sdp)
     const sdp = JSON.parse(textRef.current.value);
     console.log(sdp);
     pc.current.setRemoteDescription(new RTCSessionDescription(sdp));
-    if (done) {
-      createAnswer()
-      setDon(false)}  
-};
 
-
+    if (sdp.type === "offer") {
+      createAnswer();
+      // setDon(false);
+    }
+  };
 
   const addCandidate = () => {
-
     // const candidate = JSON.parse(textRef.current.value);
     // pc.current.addIceCandidate(new RTCIceCandidate(candidate));
 
-    candidates.current.forEach(candidate=>{
+    candidates.current.forEach((candidate) => {
       console.log("Adding candidate", candidate);
 
       pc.current.addIceCandidate(new RTCIceCandidate(candidate));
-
-    })
- 
+    });
   };
 
   // const getUserMedia = ()=>{
@@ -188,10 +194,6 @@ textRef.current.value =JSON.stringify(offer.sdp)
   //   // localAudioRef.current.srcObject = stream
   // }).catch(e=>{ console.log("first",e)})
 
-
-
-
-
   return (
     <div className="App">
       {/* ///***TO START VIDEO MAUAL */}
@@ -201,43 +203,43 @@ click
 
       {/* ////8888***?? */}
 
-      <Box>
+      <Box sx={{ display: "flex", m: "10px" }}>
         <video
           style={{ width: 200, height: 240, backgroundColor: "black" }}
           ref={localVideoRef}
           autoPlay
-        >
-         
-        </video>
-        <br />
+        ></video>
+
         <video
-          style={{ width: 200, height: 240, backgroundColor: "black" }}
+          style={{
+            width: 200,
+            height: 240,
+            backgroundColor: "black",
+            marginLeft: "10px",
+          }}
           ref={remoteVideoRef}
           autoPlay
-        >
-        
-        </video>
-        {/* <audio ref={localAudioRef} autoPlay > </audio> */}
+        ></video>
       </Box>
       <Box>
         <Button onClick={createOffer} variant="contained">
-          offer
+          Call
         </Button>
 
         <Box>
           <textarea ref={textRef}></textarea>
         </Box>
-        <Button onClick={createAnswer} variant="contained">
+        {/* <Button onClick={createAnswer} variant="contained">
           answer
-        </Button>
+        </Button> */}
 
         <Button onClick={setRemoteArea} variant="contained">
-          setting remote
+          accept call
         </Button>
 
-        <Button onClick={addCandidate} variant="contained">
+        {/* <Button onClick={addCandidate} variant="contained">
           adding candidate
-        </Button>
+        </Button> */}
       </Box>
     </div>
   );
