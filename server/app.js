@@ -22,7 +22,7 @@ const port = process.env.PORT || "8001";
 const DATABASE_URL = process.env.DATABASE_URL || "mongodb://localhost:27017";
 //   'mongodb+srv://glad:lookman17@glad.dkowsha.mongodb.net/?retryWrites=true&w=majority'
 // mongodb+srv://pratham:lookman17@cluster1.vuxzs.mongodb.net/?retryWrites=true&w=majority
-connectDB(DATABASE_URL);
+// connectDB(DATABASE_URL);
 
 app.get("/hello", (req, res) => {
   res.send("Hello World!");

@@ -13,12 +13,12 @@ function App() {
   const candidates = useRef([]);
 
   // const [socket, setsocket] = useState(null)
+  // useEffect(() => {
+  //   setsocket(io("http://localhost:8001"));
+  // }, []);
 
-  //   useEffect(() => {
-  //     setsocket(io("http://localhost:8001"))
-  //   }, []);
-
-  const socket = io("http://192.168.29.12:8001/");
+  // const socket = io("http://192.168.29.12:8001/");
+  const socket = io("http://localhost:8001");
 
   useEffect(() => {
     if (socket) {
@@ -76,11 +76,9 @@ function App() {
       .getUserMedia(constrains)
       .then((stream) => {
         localVideoRef.current.srcObject = stream;
-
         stream.getTracks().forEach((track) => {
           _pc.addTrack(track, stream);
         });
-
         // localAudioRef.current.srcObject = stream
       })
       .catch((e) => {
@@ -109,7 +107,6 @@ function App() {
 
   const createOffer = () => {
     console.log(pc.current);
-
     pc.current
       .createOffer({
         offerToReceiveAudio: 1,
@@ -118,7 +115,6 @@ function App() {
       .then((sdp) => {
         // console.log(JSON.stringify(sdp),'client');
         pc.current.setLocalDescription(sdp);
-
         socket.emit("sdp", { sdp });
       })
       .catch((e) => console.log(e));
@@ -152,10 +148,8 @@ function App() {
   const addCandidate = () => {
     // const candidate = JSON.parse(textRef.current.value);
     // pc.current.addIceCandidate(new RTCIceCandidate(candidate));
-
     candidates.current.forEach((candidate) => {
       console.log("Adding candidate", candidate);
-
       pc.current.addIceCandidate(new RTCIceCandidate(candidate));
     });
   };
